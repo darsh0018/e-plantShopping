@@ -10,46 +10,53 @@ import CartItem from './CartItem.jsx';
 function App() {
   const [page, setPage] = useState('home');
 
-  const cartItems = useSelector((state) => state.cart.items);
+  const cartItems = useSelector(
+    (state) => state.cart.items ?? []
+  );
 
   const cartCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) => total + (Number(item.quantity) || 0),
     0
   );
 
   const handleCheckout = () => {
-    alert('Coming Soon - Checkout functionality will be available soon!');
+    alert(
+      'Thank you for choosing Paradise Nursery! ' +
+      'Checkout is a demonstration feature.'
+    );
   };
 
-  const goToHome = () => {
+  const handleHome = () => {
     setPage('home');
   };
 
-  const goToProducts = () => {
+  const handlePlants = () => {
     setPage('products');
   };
 
-  const goToCart = () => {
+  const handleCart = () => {
     setPage('cart');
   };
 
   return (
     <div className="app">
-      {/* Shared navigation */}
-      <nav className="navbar home-nav">
+      <header className="home-nav">
         <button
           type="button"
           className="brand-button"
-          onClick={goToHome}
+          onClick={handleHome}
         >
-          🌿 Paradise Nursery
+          🌿 Welcome to Paradise Nursery
         </button>
 
-        <div className="home-nav-actions">
+        <nav
+          className="home-nav-actions"
+          aria-label="Main navigation"
+        >
           <button
             type="button"
             className="nav-button"
-            onClick={goToHome}
+            onClick={handleHome}
           >
             Home
           </button>
@@ -57,7 +64,7 @@ function App() {
           <button
             type="button"
             className="nav-button"
-            onClick={goToProducts}
+            onClick={handlePlants}
           >
             Plants
           </button>
@@ -65,75 +72,71 @@ function App() {
           <button
             type="button"
             className="nav-button"
-            onClick={goToCart}
+            onClick={handleCart}
           >
             🛒 Cart ({cartCount})
           </button>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      {/* Landing page */}
       {page === 'home' && (
-        <>
-          <main>
-            <section className="landing-page background-image">
-              <div className="landing-overlay">
-                <div className="hero-content">
-                  <p className="eyebrow">
-                    GROW SOMETHING BEAUTIFUL
-                  </p>
+        <main>
+          <section className="landing-page">
+            <div className="landing-overlay">
+              <div className="hero-content">
+                <p className="eyebrow">
+                  BRING NATURE HOME
+                </p>
 
-                  <h1>Welcome to Paradise Nursery</h1>
+                <h1>Welcome to Paradise Nursery</h1>
 
-                  <h2>
-                    Find Your Perfect Green Companion
-                  </h2>
+                <h2>
+                  Find Your Perfect Green Companion
+                </h2>
 
-                  <p className="hero-description">
-                    Discover beautiful indoor plants and bring
-                    freshness, nature, and happiness into your home.
-                    Explore our collection and find the perfect plant
-                    for your space.
-                  </p>
+                <p className="hero-description">
+                  Discover beautiful indoor plants and create
+                  a refreshing, peaceful space in your home.
+                </p>
 
-                  <button
-                    type="button"
-                    className="get-started-button"
-                    onClick={goToProducts}
-                  >
-                    Get Started
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="get-started-button"
+                  onClick={handlePlants}
+                >
+                  Get Started
+                </button>
               </div>
-            </section>
+            </div>
+          </section>
 
-            <AboutUs />
-          </main>
-
-          <footer className="site-footer">
-            <p>
-              © {new Date().getFullYear()} Paradise Nursery
-            </p>
-            <p>Grow happiness, one plant at a time.</p>
-          </footer>
-        </>
+          <AboutUs />
+        </main>
       )}
 
-      {/* Plant listing page */}
       {page === 'products' && (
         <ProductList
-          onViewCart={goToCart}
-          onBackToHome={goToHome}
+          onViewCart={handleCart}
+          onBackToHome={handleHome}
         />
       )}
 
-      {/* Shopping cart page */}
       {page === 'cart' && (
         <CartItem
-          onContinueShopping={goToProducts}
+          onContinueShopping={handlePlants}
           onCheckout={handleCheckout}
         />
       )}
+
+      <footer className="site-footer">
+        <p>
+          © {new Date().getFullYear()} Paradise Nursery
+        </p>
+
+        <p>
+          Grow happiness, one plant at a time.
+        </p>
+      </footer>
     </div>
   );
 }

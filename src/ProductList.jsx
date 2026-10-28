@@ -39,7 +39,6 @@ const plantsArray = [
   },
 ];
 
-// Shared navigation used by the application.
 export function Navbar({
   onHomeClick,
   onPlantsClick,
@@ -53,7 +52,7 @@ export function Navbar({
         className="brand-button"
         onClick={onHomeClick}
       >
-        🌿 Paradise Nursery
+        🌿 Welcome to Paradise Nursery
       </button>
 
       <div className="home-nav-actions">
@@ -93,13 +92,15 @@ function ProductList({
   onCartClick,
 }) {
   const dispatch = useDispatch();
-  const cart = useSelector((state) => state.cart.items);
 
-  // Track plants already added during this product-list visit.
+  const cart = useSelector(
+    (state) => state.cart.items ?? []
+  );
+
   const [addedToCart, setAddedToCart] = useState({});
 
   const totalItems = cart.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) => total + (Number(item.quantity) || 0),
     0
   );
 
@@ -121,12 +122,17 @@ function ProductList({
         <div>
           <p className="eyebrow">GROW SOMETHING BEAUTIFUL</p>
           <h1>Our Plants</h1>
-          <p>Find the perfect green companion for your home.</p>
+          <p>
+            Find the perfect green companion for your home.
+          </p>
         </div>
       </header>
 
       {plantsArray.map((category) => (
-        <section className="product-category" key={category.category}>
+        <section
+          className="product-category"
+          key={category.category}
+        >
           <h2>{category.category}</h2>
 
           <div className="product-grid">
@@ -136,10 +142,14 @@ function ProductList({
               );
 
               const isAdded =
-                Boolean(addedToCart[plant.name]) || alreadyInCart;
+                Boolean(addedToCart[plant.name]) ||
+                alreadyInCart;
 
               return (
-                <article className="product-card" key={plant.id}>
+                <article
+                  className="product-card"
+                  key={plant.id}
+                >
                   <img
                     className="product-card-image"
                     src={plant.image}
@@ -150,7 +160,9 @@ function ProductList({
                   <div className="product-info">
                     <h3>{plant.name}</h3>
 
-                    <p className="product-price">{plant.cost}</p>
+                    <p className="product-price">
+                      {plant.cost}
+                    </p>
 
                     <button
                       type="button"
@@ -158,7 +170,9 @@ function ProductList({
                       disabled={isAdded}
                       onClick={() => handleAddToCart(plant)}
                     >
-                      {isAdded ? 'Added to Cart' : 'Add to Cart'}
+                      {isAdded
+                        ? 'Added to Cart'
+                        : 'Add to Cart'}
                     </button>
                   </div>
                 </article>
