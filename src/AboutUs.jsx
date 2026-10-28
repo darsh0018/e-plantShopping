@@ -1,9 +1,7 @@
 
-import React from 'react';
-
 function AboutUs() {
   return (
-    <section className="about-us">
+    <section className="about-us-container">
       <h2>About Paradise Nursery</h2>
 
       <p>

@@ -4,25 +4,62 @@ import { removeItem, updateQuantity } from './CartSlice.jsx';
 
 function CartItem({ onContinueShopping, onCheckout }) {
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const cart = useSelector((state) => state.cart.items);
+
+  // Supports the cost format used by ProductList, such as "$15".
+  const getCost = (item) => {
+    const value = item.cost ?? item.price ?? 0;
+
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    return Number(String(value).replace(/[^0-9.]/g, '')) || 0;
+  };
+
+  const formatMoney = (amount) => `$${amount.toFixed(2)}`;
+
+  const totalQuantity = cart.reduce(
+    (total, item) => total + item.quantity,
     0
   );
 
-  const changeQuantity = (item, quantity) => {
+  const totalCost = cart.reduce(
+    (total, item) => total + getCost(item) * item.quantity,
+    0
+  );
+
+  const handleIncrement = (item) => {
     dispatch(
       updateQuantity({
         id: item.id,
         name: item.name,
-        quantity,
+        quantity: item.quantity + 1,
       })
     );
   };
 
-  const handleRemove = (item) => {
-    dispatch(removeItem(item.id));
+  const handleDecrement = (item) => {
+    dispatch(
+      updateQuantity({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity - 1,
+      })
+    );
+  };
+
+  const handleDelete = (item) => {
+    dispatch(removeItem(item.name));
+  };
+
+  const handleCheckout = () => {
+    if (onCheckout) {
+      onCheckout();
+    } else {
+      alert('Coming Soon - Checkout functionality will be available soon!');
+    }
   };
 
   return (
@@ -35,19 +72,22 @@ function CartItem({ onContinueShopping, onCheckout }) {
         </div>
 
         <button
-          className="secondary-button"
+          type="button"
+          className="get-started-button"
           onClick={onContinueShopping}
         >
           Continue Shopping
         </button>
       </header>
 
-      {items.length === 0 ? (
+      {cart.length === 0 ? (
         <section className="empty-cart">
           <h2>Your cart is empty</h2>
-          <p>Discover a plant you'll love and add it to your cart.</p>
+          <p>Add some beautiful plants to get started.</p>
+
           <button
-            className="primary-button"
+            type="button"
+            className="get-started-button"
             onClick={onContinueShopping}
           >
             Explore Plants
@@ -55,8 +95,8 @@ function CartItem({ onContinueShopping, onCheckout }) {
         </section>
       ) : (
         <>
-          <div className="cart-items">
-            {items.map((item) => (
+          <div className="cart-container">
+            {cart.map((item) => (
               <article className="cart-item" key={item.id}>
                 <img
                   className="cart-item-image"
@@ -66,15 +106,14 @@ function CartItem({ onContinueShopping, onCheckout }) {
 
                 <div className="cart-item-details">
                   <h2>{item.name}</h2>
-                  <p>Price: ₹{item.price.toFixed(2)} each</p>
+
+                  <p>Price: {formatMoney(getCost(item))}</p>
 
                   <div className="quantity-controls">
                     <button
                       type="button"
                       aria-label={`Decrease ${item.name} quantity`}
-                      onClick={() =>
-                        changeQuantity(item, item.quantity - 1)
-                      }
+                      onClick={() => handleDecrement(item)}
                     >
                       −
                     </button>
@@ -84,25 +123,23 @@ function CartItem({ onContinueShopping, onCheckout }) {
                     <button
                       type="button"
                       aria-label={`Increase ${item.name} quantity`}
-                      onClick={() =>
-                        changeQuantity(item, item.quantity + 1)
-                      }
+                      onClick={() => handleIncrement(item)}
                     >
                       +
                     </button>
                   </div>
 
                   <p className="item-subtotal">
-                    Subtotal: ₹
-                    {(item.price * item.quantity).toFixed(2)}
+                    Subtotal:{' '}
+                    {formatMoney(getCost(item) * item.quantity)}
                   </p>
 
                   <button
                     type="button"
                     className="remove-button"
-                    onClick={() => handleRemove(item)}
+                    onClick={() => handleDelete(item)}
                   >
-                    Remove
+                    Delete
                   </button>
                 </div>
               </article>
@@ -111,19 +148,17 @@ function CartItem({ onContinueShopping, onCheckout }) {
 
           <section className="cart-summary">
             <h2>Order Summary</h2>
-            <p>
-              Total items: {items.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-              )}
-            </p>
+
+            <p>Total items: {totalQuantity}</p>
+
             <p className="cart-total">
-              Total: ₹{total.toFixed(2)}
+              Total: {formatMoney(totalCost)}
             </p>
 
             <button
+              type="button"
               className="primary-button checkout-button"
-              onClick={onCheckout}
+              onClick={handleCheckout}
             >
               Checkout
             </button>
